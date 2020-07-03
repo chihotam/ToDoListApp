@@ -6,9 +6,12 @@ import androidx.fragment.app.DialogFragment;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -18,13 +21,16 @@ import org.w3c.dom.Text;
 import java.text.DateFormat;
 import java.util.Calendar;
 
+import static java.sql.DriverManager.println;
+
 public class TaskEditor extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
+
+    private TaskList taskList = new TaskList();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_editor);
-
         ImageButton cancelButton = (ImageButton) findViewById(R.id.CancelButton);
         cancelButton.setOnClickListener(new ImageButton.OnClickListener() {
             public void onClick(View view)
@@ -49,6 +55,26 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
             {
                 DialogFragment timePicker = new TimeSelectFragment();
                 timePicker.show(getSupportFragmentManager(), "Time of Task");
+            }
+        });
+
+        ImageButton saveButton = (ImageButton) findViewById(R.id.SaveButton);
+        saveButton.setOnClickListener(new ImageButton.OnClickListener() {
+            public void onClick(View view)
+            {
+                String subject = ((EditText) findViewById(R.id.TaskSubject)).getText().toString();
+                String message = ((EditText) findViewById(R.id.TaskMessage)).getText().toString();
+                String date = ((TextView) findViewById(R.id.DateSelect)).getText().toString();
+                String time = ((TextView) findViewById(R.id.TimeSelect)).getText().toString();
+
+                Task task = new Task(subject, message, date, time);
+
+                Log.d("Task Created", subject + message + date + time);
+                Intent data = new Intent();
+                data.putExtra("NewTask", task);
+                setResult(RESULT_OK, data);
+                finish();
+
             }
         });
     }

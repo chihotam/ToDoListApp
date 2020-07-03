@@ -18,7 +18,7 @@
         android:inputType="text" />
 
     <ImageButton
-        android:id="@+id/AddButton"
+        android:id="@+id/SaveButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_alignParentStart="true"
