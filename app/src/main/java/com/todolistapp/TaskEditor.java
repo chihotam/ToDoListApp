@@ -18,6 +18,7 @@ import android.widget.TimePicker;
 
 import org.w3c.dom.Text;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.Calendar;
 
@@ -46,6 +47,7 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
             {
                 DialogFragment datePicker = new CalendarFragment();
                 datePicker.show(getSupportFragmentManager(), "Date of Task");
+
             }
         });
 
@@ -67,7 +69,28 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
                 String date = ((TextView) findViewById(R.id.DateSelect)).getText().toString();
                 String time = ((TextView) findViewById(R.id.TimeSelect)).getText().toString();
 
-                Task task = new Task(subject, message, date, time);
+                String[] months = {"January", "February", "March", "April", "May", "June", "July",
+                "August", "September", "October", "November", "December"};
+
+                int month = 0;
+                String[] arr = date.split(", ");
+
+                for(int i = 0; i < months.length; i++)
+                {
+                    if(arr[1].contains(months[i]))
+                    {
+                        month = i + 1;
+                        break;
+                    }
+                }
+
+                Timestamp timestamp = new Timestamp(Integer.parseInt(arr[2]) - 1900,
+                        month,
+                        Integer.parseInt(arr[1].split(" ")[1]),
+                        Integer.parseInt(time.split(":")[0]),
+                        Integer.parseInt(time.split(":")[0]), 0 ,0);
+
+                Task task = new Task(subject, message, date, time, timestamp.getTime());
 
                 Log.d("Task Created", subject + message + date + time);
                 Intent data = new Intent();
