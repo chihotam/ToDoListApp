@@ -1,5 +1,7 @@
 package com.todolistapp;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -12,7 +14,20 @@ public class TaskList extends ArrayList<Task> implements Serializable
         if(t == null)
             throw new IllegalArgumentException("Empty Task");
 
-        add(t);
+        if(this.isEmpty())
+        {
+            add(t);
+            return;
+        }
 
+        for(int i = 0; i < this.size(); i++)
+        {
+            if(this.get(i).getUnixTime() > t.getUnixTime())
+            {
+                add(i, t);
+                return;
+            }
+        }
+        add(t);
     }
 }
