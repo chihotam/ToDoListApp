@@ -1,12 +1,13 @@
 package com.todolistapp;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,14 +16,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
-
-import org.w3c.dom.Text;
-
-import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-
-import static java.sql.DriverManager.println;
 
 public class TaskEditor extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
 
@@ -62,6 +60,7 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
 
         ImageButton saveButton = (ImageButton) findViewById(R.id.SaveButton);
         saveButton.setOnClickListener(new ImageButton.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             public void onClick(View view)
             {
                 String subject = ((EditText) findViewById(R.id.TaskSubject)).getText().toString();
@@ -84,20 +83,27 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
                     }
                 }
 
-                Timestamp timestamp = new Timestamp(Integer.parseInt(arr[2]) - 1900,
-                        month,
-                        Integer.parseInt(arr[1].split(" ")[1]),
-                        Integer.parseInt(time.split(":")[0]),
-                        Integer.parseInt(time.split(":")[0]), 0 ,0);
+               String taskDate = date.split(", ")[2] + "/" + month + "/" + arr[1].split(" ")[1] + " " +
+                       time;
+                Log.d("date" , date);
+                Log.d("Taskdate", taskDate);
+                LocalDateTime ldt = LocalDateTime.parse(taskDate, DateTimeFormatter.ofPattern("yyyy/M/d H:m"));
 
-                Task task = new Task(subject, message, date, time, timestamp.getTime());
+                long millis = 0;
+                long hourInMillis = 3600;
 
-                Log.d("Task Created", subject + message + date + time);
+                if(month < 10)
+                    millis = (ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() / 1000);
+                else
+                    millis = ((ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()) / 1000)  - hourInMillis;
+
+                Log.d("unix", String.valueOf(millis));
+
+                Task task = new Task(subject, message, date, time, millis);
                 Intent data = new Intent();
                 data.putExtra("NewTask", task);
                 setResult(RESULT_OK, data);
                 finish();
-
             }
         });
     }
