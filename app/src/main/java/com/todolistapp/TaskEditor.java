@@ -24,32 +24,45 @@ import java.util.Calendar;
 
 public class TaskEditor extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
 
-    private TaskList taskList = new TaskList();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_editor);
-        ImageButton cancelButton = (ImageButton) findViewById(R.id.CancelButton);
+
+        ImageButton cancelButton = findViewById(R.id.CancelButton);
+        TextView dateSelect = findViewById(R.id.DateSelect);
+        TextView timeSelect = findViewById(R.id.TimeSelect);
+        ImageButton saveButton = findViewById(R.id.SaveButton);
+        EditText subjectBox = findViewById(R.id.TaskSubject);
+        EditText messageBox = findViewById(R.id.TaskMessage);
+
+        if(getIntent().getExtras().get("requestCode").equals(101))
+        {
+            Task t = (Task)getIntent().getSerializableExtra("Task");
+            subjectBox.setText(t.getSubject());
+            messageBox.setText(t.getMessage());
+            dateSelect.setText(t.getDate());
+            timeSelect.setText(t.getTime());
+        }
+
         cancelButton.setOnClickListener(new ImageButton.OnClickListener() {
             public void onClick(View view)
             {
+                setResult(RESULT_CANCELED);
                 finish();
             }
         }
         );
 
-        TextView dateSelect = (TextView) findViewById(R.id.DateSelect);
         dateSelect.setOnClickListener(new TextView.OnClickListener(){
             public void onClick(View view)
             {
                 DialogFragment datePicker = new CalendarFragment();
                 datePicker.show(getSupportFragmentManager(), "Date of Task");
-
             }
         });
 
-        TextView timeSelect = (TextView) findViewById(R.id.TimeSelect);
         timeSelect.setOnClickListener(new TextView.OnClickListener() {
             public void onClick(View view)
             {
@@ -58,7 +71,6 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
             }
         });
 
-        ImageButton saveButton = (ImageButton) findViewById(R.id.SaveButton);
         saveButton.setOnClickListener(new ImageButton.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
             public void onClick(View view)
@@ -69,7 +81,7 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
                 String time = ((TextView) findViewById(R.id.TimeSelect)).getText().toString();
 
                 String[] months = {"January", "February", "March", "April", "May", "June", "July",
-                "August", "September", "October", "November", "December"};
+                    "August", "September", "October", "November", "December"};
 
                 int month = 0;
                 String[] arr = date.split(", ");
@@ -101,10 +113,29 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
 
                 Task task = new Task(subject, message, date, time, millis);
                 Intent data = new Intent();
+
+                Integer i = (Integer) getIntent().getExtras().get("listIndex");
+
+                if(getIntent().getExtras().get("requestCode").equals(101))
+                {
+                    data.putExtra("requestCode", 201);
+                    data.putExtra("listIndex", (Integer) getIntent().getExtras().get("listIndex"));
+                    Log.d("listIndex", String.valueOf(i.intValue()));
+                }
+                else {
+                    data.putExtra("requestCode", 200);
+                }
+
+
                 data.putExtra("NewTask", task);
                 setResult(RESULT_OK, data);
                 finish();
-            }
+
+                //cancel hard
+                //delete task with alarm very hard
+                //delete task alarm passed medium
+                //make pretty very ver yvery fun
+        }
         });
     }
 
