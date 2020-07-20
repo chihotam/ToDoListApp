@@ -3,14 +3,12 @@ package com.todolistapp;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Activity;
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
     private TaskList taskList;
     private ListView taskListView;
+    private ArrayAdapter arrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -59,9 +58,6 @@ public class MainActivity extends AppCompatActivity {
             ObjectInputStream fin = new ObjectInputStream(file);
             taskList = (TaskList) fin.readObject();
             fin.close();
-
-            ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, taskList);
-            taskListView.setAdapter(arrayAdapter);
         }
         catch (IOException | ClassNotFoundException e)
         {
@@ -77,8 +73,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
+        arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, taskList);
+        taskListView.setAdapter(arrayAdapter);
 
+    }
 
     public void openEditor()
     {
@@ -95,43 +93,56 @@ public class MainActivity extends AppCompatActivity {
         if(resultCode == RESULT_CANCELED)
             return;
 
-
         Task task = (Task)data.getSerializableExtra("NewTask");
 
-        if(data.getExtras().get("requestCode").equals(201))
+        if(data.getExtras().get("requestCode").equals(201)) //Editing
         {
             taskList.set((Integer) data.getExtras().get("listIndex"), task);
-            //Log.d("index position", (String) data.getExtras().get("listIndex"));
         }
         else
         {
-            //Log.d("index position", (String) data.getExtras().get("listIndex"));
-            taskList.addSort(task);
-            try
+            if(data.getExtras().get("requestCode").equals(500)) //Removing
             {
-                FileOutputStream file = new FileOutputStream(new File(getFilesDir(), "TaskList.obj"));
-                ObjectOutputStream fout = new ObjectOutputStream(file);
-                fout.writeObject(taskList);
-                fout.close();
+                Object removedTask = arrayAdapter.getItem((Integer) data.getExtras().get("listIndex"));
+                arrayAdapter.remove(removedTask);
 
-                Log.d("a", String.valueOf(task.getUnixTime()));
+                Task removed = (Task)removedTask;
 
                 Intent intent = new Intent(MainActivity.this, TaskBroadcast.class);
-                intent.setAction(task.getTime() + "&&" + task.getMessage());
+                Log.d("removed message", removed.getMessage());
+                intent.setAction(removed.getTime() + "&&" + removed.getMessage());
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-                alarmManager.set(AlarmManager.RTC_WAKEUP, task.getUnixTime() * 1000, pendingIntent);
-
+                AlarmManager alarmManagercancel = (AlarmManager) getSystemService(ALARM_SERVICE);
+                alarmManagercancel.cancel(pendingIntent);
             }
-            catch(IOException e)
+            else
             {
-                System.out.println("ERROR");
+                //normal adding new task
+                taskList.addSort(task);
+                try
+                {
+                    FileOutputStream file = new FileOutputStream(new File(getFilesDir(), "TaskList.obj"));
+                    ObjectOutputStream fout = new ObjectOutputStream(file);
+                    fout.writeObject(taskList);
+                    fout.close();
+
+                    Log.d("a", String.valueOf(task.getUnixTime()));
+
+                    Intent intent = new Intent(MainActivity.this, TaskBroadcast.class);
+                    intent.setAction(task.getTime() + "&&" + task.getMessage());
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                    AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, task.getUnixTime() * 1000, pendingIntent);
+                }
+                catch(IOException e)
+                {
+                    System.out.println("ERROR");
+                }
             }
         }
-
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, taskList);
-        taskListView.setAdapter(arrayAdapter);
+        arrayAdapter.notifyDataSetChanged();
     }
 
     public void createNotificationChannel()
@@ -148,5 +159,4 @@ public class MainActivity extends AppCompatActivity {
             notificationManager.createNotificationChannel(channel);
         }
     }
-
 }

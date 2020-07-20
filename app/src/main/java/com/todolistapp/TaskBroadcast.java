@@ -17,7 +17,6 @@ public class TaskBroadcast extends BroadcastReceiver
     @Override
     public void onReceive(Context context, Intent intent)
     {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intentreturn = new Intent(context, MainActivity.class);
         intentreturn.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
@@ -31,7 +30,8 @@ public class TaskBroadcast extends BroadcastReceiver
                 .setAutoCancel(true)
                 .setContentIntent(pending);
 
-
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(100, builder.build());
+
     }
 }

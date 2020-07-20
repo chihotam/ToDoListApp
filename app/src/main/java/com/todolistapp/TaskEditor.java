@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 
+
 public class TaskEditor extends AppCompatActivity implements DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener{
 
     @Override
@@ -36,6 +37,8 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
         ImageButton saveButton = findViewById(R.id.SaveButton);
         EditText subjectBox = findViewById(R.id.TaskSubject);
         EditText messageBox = findViewById(R.id.TaskMessage);
+        TextView deleteButton = findViewById(R.id.Delete);
+        deleteButton.setVisibility(View.GONE);
 
         if(getIntent().getExtras().get("requestCode").equals(101))
         {
@@ -44,6 +47,7 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
             messageBox.setText(t.getMessage());
             dateSelect.setText(t.getDate());
             timeSelect.setText(t.getTime());
+            deleteButton.setVisibility(View.VISIBLE);
         }
 
         cancelButton.setOnClickListener(new ImageButton.OnClickListener() {
@@ -54,6 +58,18 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
             }
         }
         );
+
+        deleteButton.setOnClickListener(new TextView.OnClickListener()
+        {
+            public void onClick(View view)
+            {
+                Intent data = new Intent();
+                data.putExtra("listIndex", (Integer) getIntent().getExtras().get("listIndex"));
+                data.putExtra("requestCode", 500);
+                setResult(RESULT_OK, data);
+                finish();
+            }
+        });
 
         dateSelect.setOnClickListener(new TextView.OnClickListener(){
             public void onClick(View view)
@@ -126,15 +142,9 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
                     data.putExtra("requestCode", 200);
                 }
 
-
                 data.putExtra("NewTask", task);
                 setResult(RESULT_OK, data);
                 finish();
-
-                //cancel hard
-                //delete task with alarm very hard
-                //delete task alarm passed medium
-                //make pretty very ver yvery fun
         }
         });
     }
