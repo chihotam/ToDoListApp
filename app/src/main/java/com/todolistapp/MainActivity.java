@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setTitle("                              To-Do List");
         setContentView(R.layout.activity_main);
         taskListView = findViewById(R.id.TaskListView);
         taskListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -97,7 +98,21 @@ public class MainActivity extends AppCompatActivity {
 
         if(data.getExtras().get("requestCode").equals(201)) //Editing
         {
+            Task edited = taskList.get((Integer) data.getExtras().get("listIndex"));
             taskList.set((Integer) data.getExtras().get("listIndex"), task);
+
+            Intent intent = new Intent(MainActivity.this, TaskBroadcast.class);
+            intent.setAction(edited.getTime() + "&&" + edited.getMessage());
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            AlarmManager alarmManagercancel = (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmManagercancel.cancel(pendingIntent);
+
+            Intent intentToo = new Intent(MainActivity.this, TaskBroadcast.class);
+            intentToo.setAction(task.getTime() + "&&" + task.getMessage());
+            PendingIntent pendingIntentToo = PendingIntent.getBroadcast(MainActivity.this, 100, intentToo, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            alarmManagercancel.set(AlarmManager.RTC_WAKEUP, task.getUnixTime() * 1000, pendingIntentToo);
         }
         else
         {
@@ -109,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
                 Task removed = (Task)removedTask;
 
                 Intent intent = new Intent(MainActivity.this, TaskBroadcast.class);
-                Log.d("removed message", removed.getMessage());
                 intent.setAction(removed.getTime() + "&&" + removed.getMessage());
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 

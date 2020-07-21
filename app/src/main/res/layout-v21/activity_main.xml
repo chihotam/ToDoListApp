@@ -3,30 +3,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#36B1D9"
     tools:context=".MainActivity"
     >
 
     <Button
         android:id="@+id/AddButton"
-        android:layout_marginLeft="350dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginLeft="320dp"
+        android:layout_marginTop="600dp"
         android:text="+"
         android:textColor="#FFFFFF"
-        android:textSize="30sp"
-        android:layout_width="50dp"
-        android:layout_height="509dp"
+        android:textSize="35sp"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
         android:background="@drawable/buttonshape"
         android:shadowColor="#A8A8A8"
         android:shadowDx="0"
         android:shadowDy="0"
         android:shadowRadius="5"
+
         />
 
     <ListView
         android:id="@+id/TaskListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-
+        android:background="@drawable/layoutbg"
         />
 
 </RelativeLayout>

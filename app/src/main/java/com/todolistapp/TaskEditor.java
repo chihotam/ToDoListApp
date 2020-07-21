@@ -30,6 +30,7 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_editor);
+        getSupportActionBar().setTitle("                            To-Do Editor");
 
         ImageButton cancelButton = findViewById(R.id.CancelButton);
         TextView dateSelect = findViewById(R.id.DateSelect);
@@ -136,9 +137,9 @@ public class TaskEditor extends AppCompatActivity implements DatePickerDialog.On
                 {
                     data.putExtra("requestCode", 201);
                     data.putExtra("listIndex", (Integer) getIntent().getExtras().get("listIndex"));
-                    Log.d("listIndex", String.valueOf(i.intValue()));
                 }
-                else {
+                else
+                    {
                     data.putExtra("requestCode", 200);
                 }
 
